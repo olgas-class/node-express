@@ -1,5 +1,4 @@
 import express from "express";
-import fs from "fs";
 import pizzasRouter from "./routers/pizzas.js";
 import tablesRouter from "./routers/tables.js";
 
