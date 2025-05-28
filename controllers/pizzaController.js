@@ -1,33 +1,25 @@
 import pizzasArray from "../data/pizzas.js";
 
-const sendNotFound = (res) => {
-  res.status(404);
-  return res.json({
-    error: "Pizza non trovata",
-  });
-};
-
 const index = (req, res) => {
+  console.log("Ciao sono index delle pizze");
+
   console.log(req.query);
 
-  const ingredientFilter = req.query.ingredient;
-  const maxPriceFilter = req.query.maxPrice;
+  // const ingredientFilter = req.query.ingredient;
+  // const maxPriceFilter = req.query.maxPrice;
 
-  let result = pizzasArray;
+  const { ingredient, maxPrice } = req.query;
 
-  // DA rivedere per rendere la soluzione più scalabile
-  if (ingredientFilter !== undefined && maxPriceFilter !== undefined) {
-    // filtro per entrambi
-  } else if (ingredientFilter !== undefined) {
-    // filtro per ingrediente
-  } else if (maxPriceFilter !== undefined) {
-    // filtro per prezzo
+  let result = [...pizzasArray];
+
+  if (ingredient !== undefined) {
+    result = result.filter((curPizza) =>
+      curPizza.ingredients.includes(ingredient)
+    );
   }
 
-  if (ingredientFilter !== undefined) {
-    result = pizzasArray.filter((curPizza) =>
-      curPizza.ingredients.includes(ingredientFilter)
-    );
+  if (maxPrice !== undefined) {
+    result = result.filter((curPizza) => curPizza.price <= parseInt(maxPrice));
   }
 
   res.json({
@@ -37,12 +29,7 @@ const index = (req, res) => {
 };
 
 const show = (req, res) => {
-  const pizzaId = req.params.id;
-  const pizza = pizzasArray.find((curPizza) => curPizza.id === pizzaId);
-
-  if (pizza === undefined) {
-    return sendNotFound(res);
-  }
+  const pizza = pizzasArray[req.pizzaIndex];
   res.json({
     data: pizza,
   });
@@ -61,14 +48,8 @@ const store = (req, res) => {
 };
 
 const update = (req, res) => {
-  const pizzaId = req.params.id;
   const updatedPizzaData = req.body;
-
-  const pizza = pizzasArray.find((curPizza) => curPizza.id === pizzaId);
-
-  if (!pizza) {
-    return sendNotFound(res);
-  }
+  const pizza = pizzasArray[req.pizzaIndex];
 
   pizza.name = updatedPizzaData.name;
   pizza.image = updatedPizzaData.image;
@@ -81,16 +62,7 @@ const update = (req, res) => {
 };
 
 const destroy = (req, res) => {
-  const pizzaId = req.params.id;
-
-  const index = pizzasArray.findIndex((curPizza) => curPizza.id === pizzaId);
-
-  if (index === -1) {
-    return sendNotFound(res);
-  }
-
-  pizzasArray.splice(index, 1);
-
+  pizzasArray.splice(req.pizzaIndex, 1);
   res.sendStatus(204);
 };
 
